@@ -37,7 +37,7 @@ services:
       - transcendence_net
     volumes:
       - ./App:/App
-      - /frontend/node_modules
+      - /App/node_modules
 
   # -------------------------------------------------------------------------------- #
   # postgresql database                                                              #
