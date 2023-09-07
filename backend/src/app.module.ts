@@ -20,6 +20,7 @@ import { TwoFA } from './auth/strategy';
 import { SocketModule } from './socket/socket.module';
 import { GameModule } from './game/game.module';
 import { GameService } from './game/game.service';
+import { FriendModule } from './friend/friend.module';
 
 const cacheConfig = {
   isGlobal: true,
@@ -42,6 +43,7 @@ const cacheConfig = {
     JwtModule,
     SocketModule,
     GameModule,
+    FriendModule,
   ],
   providers: [AuthService, UserService, GameService, TwoFA],
   controllers: [UserController],
