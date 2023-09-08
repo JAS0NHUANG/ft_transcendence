@@ -66,7 +66,6 @@ export class SocketGateway implements OnGatewayConnection {
 
   @SubscribeMessage('setCanvas')
   handleSetCanvas(client: Socket, payload: any) {
-    console.log(payload);
     this.gameService.setCanvas(payload);
   }
 
@@ -93,7 +92,6 @@ export class SocketGateway implements OnGatewayConnection {
   handleMovePaddle(client: Socket, payload: Object): Object {
     const gameData = this.gameService.movePaddle(client, payload);
     let updateSide = '';
-    console.log('game Data to sent: ', gameData);
 
     if (
       gameData.currentGame.leftPlayer.socketID ===
@@ -110,8 +108,6 @@ export class SocketGateway implements OnGatewayConnection {
     this.server
       .to(gameData.currentGame.leftPlayer.socketID)
       .emit(updateSide, gameData.currentPlayer.paddlePosition);
-    console.log(payload);
-    console.log('Paddle movinnnnn!!!');
     return { event: 'player paddle move', socketID: client.id };
   }
 

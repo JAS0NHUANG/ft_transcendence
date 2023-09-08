@@ -26,6 +26,7 @@ const Pong = () => {
 
   const paddleHeight = 75;
   const paddleWidth = 10;
+  const paddleX = 40;
   const [leftPaddleY, setLeftPaddleY] = useState<number>(
     canvasHeight / 2 - paddleHeight / 2,
   );
@@ -65,7 +66,7 @@ const Pong = () => {
 
     socket.on("updateGame", (gameData: any) => {
       setBall(gameData.ballPosition);
-      setScore({0: gameData.score[0], 1: gameData.score[1]});
+      setScore({ 0: gameData.score[0], 1: gameData.score[1] });
     });
 
     socket.on("updateScore", (newScore: Record<number, number>) => {
@@ -97,7 +98,13 @@ const Pong = () => {
       }, 1000);
     });
 
-    socket.emit("setCanvas", { canvasHeight, paddleHeight, leftPaddleY });
+    socket.emit("setCanvas", {
+      canvasHeight,
+      canvasWidth,
+      paddleHeight,
+      paddleWidth,
+      paddleX,
+    });
 
     return () => {
       socket?.off("error");
@@ -171,9 +178,9 @@ const Pong = () => {
 
         // draw both paddles
         context.fillStyle = "white";
-        context.fillRect(40, leftPaddleY, paddleWidth, paddleHeight);
+        context.fillRect(paddleX, leftPaddleY, paddleWidth, paddleHeight);
         context.fillRect(
-          canvasWidth - paddleWidth - 40,
+          canvasWidth - paddleWidth - paddleX,
           rightPaddleY,
           paddleWidth,
           paddleHeight,

@@ -5,6 +5,35 @@ import { Cache } from 'cache-manager';
 import { Game } from '../dto/game.dto';
 import { Player } from '../dto/game.dto';
 
+const generateAngle = (x: number, y: number) => {
+  let angle = Math.random() * Math.PI * 2;
+  console.log('init angle: ', angle);
+  if (angle > 3.5 && angle < 5) {
+    if (angle > (Math.PI / 2) * 3) {
+      angle += 1;
+    } else {
+      angle -= 1;
+    }
+  }
+  if (angle > 0.6 && angle < 2.5) {
+    if (angle > Math.PI / 2) {
+      angle += 1;
+    } else {
+      angle -= 1;
+    }
+  }
+  console.log('mod angle: ', angle);
+  if (x > 0 && y > 0) {
+    return angle;
+  } else if (x > 0 && y < 0) {
+    return (angle += Math.PI / 2);
+  } else if (x < 0 && y < 0) {
+    return (angle += Math.PI);
+  } else {
+    return (angle += (Math.PI / 2) * 3);
+  }
+};
+
 @Injectable()
 export class GameService {
   constructor(@Inject(CACHE_MANAGER) private readonly cacheManager: Cache) {}
@@ -12,10 +41,16 @@ export class GameService {
   // this should all be stored in the cache:
   private canvas: {
     canvasHeight: number;
+    canvasWidth: number;
     paddleHeight: number;
+    paddleWidth: number;
+    paddleX: number;
   } = {
     canvasHeight: 0,
+    canvasWidth: 0,
     paddleHeight: 0,
+    paddleWidth: 0,
+    paddleX: 0,
   };
 
   private players: Player[] = [];
@@ -59,11 +94,12 @@ export class GameService {
           x: 7,
           y: 7,
         },
-        Math.random() * Math.PI * 2,
+        generateAngle(7, 7),
         'playig',
       );
       this.gameIDcounter++;
       this.games.push(newGame);
+      console.log(newGame.ballAngle);
       this.players.push(newPlayer);
     }
   }
@@ -72,13 +108,22 @@ export class GameService {
 
   setCanvas({
     canvasHeight,
+    canvasWidth,
     paddleHeight,
+    paddleWidth,
+    paddleX,
   }: {
     canvasHeight: number;
+    canvasWidth: number;
     paddleHeight: number;
+    paddleWidth: number;
+    paddleX: number;
   }) {
     this.canvas.canvasHeight = canvasHeight;
+    this.canvas.canvasWidth = canvasWidth;
     this.canvas.paddleHeight = paddleHeight;
+    this.canvas.paddleWidth = paddleWidth;
+    this.canvas.paddleX = paddleX;
     this.startPaddle = canvasHeight / 2 - paddleHeight / 2;
   }
 
@@ -86,8 +131,6 @@ export class GameService {
     const currentPlayer = this.players.find(
       (player) => player.socketID === client.id,
     );
-
-    console.log(currentPlayer);
 
     if (!currentPlayer) {
       console.log('error');
@@ -123,46 +166,63 @@ export class GameService {
     );
 
     if (!currentGame) {
-      return;
+      return null;
     }
 
-    if (currentGame.ballPosition.x > 750) {
-      currentGame.ballPosition.x = 400;
-      currentGame.ballPosition.y = 400;
-      currentGame.score[0] += 1;
-      currentGame.ballAngle = Math.random() * Math.PI * 2;
+    // ball hits paddle
+    if (
+      currentGame.ballPosition.x <= 54 &&
+      currentGame.ballPosition.x > 47 &&
+      currentGame.ballPosition.y / 2 - currentGame.leftPlayer.paddlePosition >=
+        -5 &&
+      currentGame.ballPosition.y / 2 - currentGame.leftPlayer.paddlePosition <=
+        this.canvas.paddleHeight + 5
+    ) {
+      currentGame.ballDirection.x *= -1;
+      currentGame.ballPosition.x +=
+        Math.cos(currentGame.ballAngle) * currentGame.ballDirection.x;
+      currentGame.ballPosition.y +=
+        Math.sin(currentGame.ballAngle) * currentGame.ballDirection.y;
+      return currentGame;
     }
 
-    if (currentGame.ballPosition.x <= 50) {
+    if (
+      currentGame.ballPosition.x >= 748 &&
+      currentGame.ballPosition.x < 755 &&
+      currentGame.ballPosition.y / 2 - currentGame.rightPlayer.paddlePosition >=
+        -5 &&
+      currentGame.ballPosition.y / 2 - currentGame.rightPlayer.paddlePosition <=
+        this.canvas.paddleHeight + 5
+    ) {
+      currentGame.ballDirection.x *= -1;
+      currentGame.ballPosition.x +=
+        Math.cos(currentGame.ballAngle) * currentGame.ballDirection.x;
+      currentGame.ballPosition.y +=
+        Math.sin(currentGame.ballAngle) * currentGame.ballDirection.y;
+      return currentGame;
+    }
+
+    // ball pass the paddles
+    if (currentGame.ballPosition.x <= 10) {
       currentGame.ballPosition.x = 400;
       currentGame.ballPosition.y = 400;
       currentGame.score[1] += 1;
-      currentGame.ballAngle = Math.random() * Math.PI * 2;
+      currentGame.ballAngle = generateAngle(
+        currentGame.ballPosition.x,
+        currentGame.ballPosition.y,
+      );
+    }
+    if (currentGame.ballPosition.x >= 790) {
+      currentGame.ballPosition.x = 400;
+      currentGame.ballPosition.y = 400;
+      currentGame.score[0] += 1;
+      currentGame.ballAngle = generateAngle(
+        currentGame.ballPosition.x,
+        currentGame.ballPosition.y,
+      );
     }
 
-    if (
-      currentGame.ballPosition.x <= 55 &&
-      currentGame.ballPosition.y / 2 - currentGame.leftPlayer.paddlePosition >=
-        0 &&
-      currentGame.ballPosition.y / 2 - currentGame.leftPlayer.paddlePosition <=
-        75
-    ) {
-      console.log(currentGame.ballPosition);
-      currentGame.ballDirection.x *= -1;
-    }
-
-    if (
-      currentGame.ballPosition.x >= 745 &&
-      currentGame.ballPosition.y / 2 - currentGame.rightPlayer.paddlePosition >=
-        0 &&
-      currentGame.ballPosition.y / 2 - currentGame.rightPlayer.paddlePosition <=
-        75
-    ) {
-      console.log(currentGame.ballPosition);
-      currentGame.ballDirection.x *= -1;
-    }
-
-    if (currentGame.ballPosition.y < 3 || currentGame.ballPosition.y >= 797) {
+    if (currentGame.ballPosition.y < 7 || currentGame.ballPosition.y >= 793) {
       currentGame.ballDirection.y *= -1;
     }
 

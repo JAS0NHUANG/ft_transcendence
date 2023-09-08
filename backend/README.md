@@ -42,7 +42,8 @@ port: 6379,
 
 6. Add redis service into docker-compose
 
-some possible issues: 
+some possible issues:
+
 - cache store type not assignable:
   (https://github.com/dabroek/node-cache-manager-redis-store/issues/53)
   solution:
