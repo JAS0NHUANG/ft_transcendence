@@ -5,7 +5,7 @@ import { PrismaModule, PrismaService } from 'nestjs-prisma';
 
 @Module({
   imports: [PrismaModule],
-  providers: [FriendService],
-  controllers: [FriendController, PrismaService]
+  providers: [FriendService, PrismaService],
+  controllers: [FriendController]
 })
 export class FriendModule {}
