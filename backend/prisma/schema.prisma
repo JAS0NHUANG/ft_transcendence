@@ -28,8 +28,8 @@ model User {
 
   /// community
   friends     			    String[]
-  frienRequestsSent 	  String[]
-  friendReqestsReceived	String[]
+  friendRequestsSent 	  String[]
+  friendRequestsReceived	String[]
   chats       			    Chat[]    @relation("ChatUsers")
 
   /// statistics
