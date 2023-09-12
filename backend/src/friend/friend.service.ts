@@ -158,4 +158,44 @@ export class FriendService {
     }
     return { status: 'OK', statusCode: 200 };
   }
+
+  /*****************************************************************************/
+  // unfriend 
+  /*****************************************************************************/
+  async unfriend(
+    sender: User,
+    friendUserName: { userName: string },
+    res: any,
+  ) {
+    try {
+      // get the friend list
+      const { friends } = await this.prisma.user.findUnique({
+        where: {
+          userName: sender.userName,
+        },
+        select: {
+          friends: true,
+        },
+      });
+
+      // remove friend from friends array
+      // filter out the friend and update/set the list
+      const updateFriends = await this.prisma.user.update({
+        where: {
+          userName: sender.userName,
+        },
+        data: {
+          friends: {
+            set: friends.filter(
+              (userName) => userName !== friendUserName.userName,
+            ),
+          },
+        },
+      });
+    } catch (error) {
+      throw error;
+    }
+    return { status: 'OK', statusCode: 200 };
+  }
+
 }

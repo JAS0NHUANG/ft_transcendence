@@ -95,6 +95,18 @@ export class FriendController {
   }
 
   // unfriend
-  @Patch('unFriend')
-  async unFriend(friendUserName: string, res: any) {}
+  @Patch('unfriend')
+  async unfriend(
+    @GetUser() sender: User,
+    @Body() friendUserName: { userName: string },
+    @Res() res: any,
+  ) {
+    const result = await this.friendService.unfriend(
+      sender,
+      friendUserName,
+      res,
+    );
+    res.status(result.statusCode).send({ status: result.status });
+  }
+
 }
