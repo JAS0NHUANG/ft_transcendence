@@ -160,13 +160,20 @@ export class FriendService {
   }
 
   /*****************************************************************************/
-  // unfriend 
+  // decline friend Request
   /*****************************************************************************/
-  async unfriend(
-    sender: User,
-    friendUserName: { userName: string },
+  async declineFriendRequest(
+    receiver: User,
+    sender: { userName: string },
     res: any,
   ) {
+    const remover = this.cancelFriendRequest(receiver, sender, res);
+    return { status: 'OK', statusCode: 200 };
+  }
+  /*****************************************************************************/
+  // unfriend
+  /*****************************************************************************/
+  async unfriend(sender: User, friendUserName: { userName: string }, res: any) {
     try {
       // get the friend list
       const { friends } = await this.prisma.user.findUnique({
@@ -197,5 +204,4 @@ export class FriendService {
     }
     return { status: 'OK', statusCode: 200 };
   }
-
 }

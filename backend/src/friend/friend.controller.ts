@@ -94,6 +94,23 @@ export class FriendController {
     res.status(result.statusCode).send({ status: result.status });
   }
 
+  // Decline received request
+  @Patch('declineFriendRequest')
+  async declineFriendRequest(
+    @GetUser() receiver: User,
+    @Body() sender: { userName: string },
+    @Res() res: any,
+  ) {
+    // remove senderUserName from friendRequestReceived array
+    // add senderUserName to friends array
+    const result = await this.friendService.declineFriendRequest(
+      receiver,
+      sender,
+      res,
+    );
+    res.status(result.statusCode).send({ status: result.status });
+  }
+
   // unfriend
   @Patch('unfriend')
   async unfriend(
@@ -108,5 +125,4 @@ export class FriendController {
     );
     res.status(result.statusCode).send({ status: result.status });
   }
-
 }
