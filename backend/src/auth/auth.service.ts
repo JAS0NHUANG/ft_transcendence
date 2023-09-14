@@ -43,7 +43,6 @@ export class AuthService {
             password: dto.password,
           },
         });
-        return;
       } catch (error) {
         if (error.code === 'P2002') {
           throw new ForbiddenException('Credentials taken');
