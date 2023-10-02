@@ -32,6 +32,7 @@ export class UserController {
     return user;
   }
 
+
   // update user data
   @Patch('update')
   @ApiOkResponse({
@@ -91,5 +92,13 @@ export class UserController {
   })
   async handleGetUserByEmail(@Body() dto: GetUserByEmailDTO) {
     return await this.userService.getUserByEmail(dto);
+  }
+
+  @Get('myGameHistory')
+  @ApiOkResponse({
+    description: 'Returns the game history of the logged in user.',
+  })
+  async handleGetMyGameHistory(@GetUser() user: User) {
+    return await this.userService.getMyGameHistory(user);
   }
 }

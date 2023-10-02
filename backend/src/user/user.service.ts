@@ -1,5 +1,5 @@
 import { Injectable, ForbiddenException } from '@nestjs/common';
-import { User } from '@prisma/client';
+import { User, Game } from '@prisma/client';
 import { PrismaService } from 'nestjs-prisma';
 import {
   GetUserByUsernameDTO,
@@ -183,5 +183,18 @@ export class UserService {
         gamesLost: true,
       },
     });
+  }
+
+  async getMyGameHistory(user: User): Promise<Game[]> {
+    const username = user.userName;
+    const userWithGameHistory = await this.prisma.user.findUnique({
+      where: {
+        userName: username,
+      },
+      include: {
+        games: true,
+      },
+    });
+    return userWithGameHistory.games;
   }
 }

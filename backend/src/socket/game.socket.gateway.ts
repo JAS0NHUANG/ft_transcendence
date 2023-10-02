@@ -123,9 +123,8 @@ export class GameGateway implements OnGatewayConnection {
       }
 
       if (gameData.status === GameStatus.Ended) {
-        this.gameService.endGame(gameData);
-        clearInterval(gameInterval);
         await this.gameService.endGame(gameData);
+        clearInterval(gameInterval);
       }
     }, 1000 / 30);
 

@@ -675,8 +675,8 @@ export class GameService {
         players: {
           connect: [{ email: leftPlayer.email }, { email: rightPlayer.email }],
         },
-        winnerId: winner.id,
-        loserId: loser.id,
+        winnerId: winner.userName,
+        loserId: loser.userName,
       },
     });
 
