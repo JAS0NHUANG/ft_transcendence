@@ -6,6 +6,10 @@ export const SearchBarWrapper = styled.div`
 	flex-direction: column; /* Arrange children vertically */
 	align-items: center;
 	
+	@media screen and (max-width: 940px) {
+		align-items: flex-start;
+	}
+
 	input {
 		height: 23px;
 		width: 215px;

@@ -8,7 +8,7 @@ import {
 } from '@nestjs/websockets';
 import { Socket } from 'socket.io';
 import { ChatService } from 'src/chat/chat.service';
-import { createRoomDTO, joinRoomDTO, messageDTO } from 'src/dto';
+import { createRoomDTO, joinRoomDTO, messageDTO, channelDTO } from 'src/dto';
 import { RoomStatus } from '@prisma/client';
 
 @WebSocketGateway({
@@ -48,7 +48,12 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @ConnectedSocket() client: Socket,
     @MessageBody() message: messageDTO,
   ) {
-    await this.chatService.handleMessage(message);
+    try {
+      await this.chatService.stockMessage(client, message);
+      client.emit('sendMessageSuccess', 'We received the message well');
+    } catch (error) {
+      client.emit('sendMessageError', { message: error.message });
+    }
   }
 
   /****************************************************************************/
@@ -80,6 +85,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @ConnectedSocket() client: Socket,
     @MessageBody() joinDTO: joinRoomDTO,
   ) {
+    console.log('dto join channel:', joinDTO);
     try {
       await this.chatService.joinChannel(client, joinDTO);
       client.emit('joinChannelSuccess', {
@@ -87,6 +93,21 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       });
     } catch (error) {
       client.emit('joinChannelError', { message: error.message });
+    }
+  }
+
+  @SubscribeMessage('leaveChannel')
+  async handleLeaveChannel(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() dto: channelDTO,
+  ) {
+    try {
+      await this.chatService.leaveChannel(client, dto);
+      client.emit('leaveChannelSuccess', {
+        message: `You are no longer a member of channel ${dto.name}`,
+      });
+    } catch (error) {
+      client.emit('leaveChannelError', { message: error.message });
     }
   }
 }

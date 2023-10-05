@@ -21,3 +21,6 @@ RUN npx prisma generate
 
 # Start the server using the production build
 CMD npx prisma migrate deploy &&  npm run start:dev
+
+# # In case of migration errors, start server like this to not exit
+# CMD ["tail", "-f", "/dev/null"]

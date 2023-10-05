@@ -38,16 +38,21 @@ const NavBar: React.FC = () => {
       <NavButton to="/landing" iconSrc="../../public/icon/Home.svg" alt="Home" />
       <NavButton to="/play" iconSrc="../../public/icon/Play.svg" alt="Play" />
       <NavButton
-        to="/friends"
-        iconSrc="../../public/icon/Friends.svg"
-        alt="Friends"
-      />
-      <NavButton
         to="/leaderboard"
         iconSrc="../../public/icon/Leaderboard.svg"
         alt="Leaderboard"
       />
-      <NavButton to="/auth" iconSrc="../../public/icon/Exit.svg" alt="Exit" onClick={handleLogout} />
+      <NavButton
+        to="/chat"
+        iconSrc="../../public/icon/Chat.svg"
+        alt="Chat"
+      />
+      <NavButton
+        to="/friends"
+        iconSrc="../../public/icon/Friends.svg"
+        alt="Friends"
+      />
+      <NavButton to="/" iconSrc="../../public/icon/Exit.svg" alt="Exit" onClick={handleLogout} />
     </NavBarStyled>
   );
 };

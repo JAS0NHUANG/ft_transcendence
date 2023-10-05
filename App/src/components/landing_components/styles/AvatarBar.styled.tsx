@@ -34,9 +34,7 @@ const NewPageName = styled.div`
   letter-spacing: 0.5px;
 
   /* Hover styles */
-  transition:
-    background-color 0.3s,
-    color 0.3s;
+  transition: background-color 0.3s, color 0.3s;
   cursor: pointer;
 
   h1:hover {

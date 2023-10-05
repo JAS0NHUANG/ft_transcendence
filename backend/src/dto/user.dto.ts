@@ -5,13 +5,15 @@ import {
   Matches,
   MinLength,
   IsEmail,
+  IsAlphanumeric,
 } from 'class-validator';
-import { Status } from '@prisma/client';
+import { Game, Status } from '@prisma/client';
 
 export class UpdateDto {
   @ApiProperty({ description: 'New username (optional)' })
   @IsString()
   @IsOptional()
+  @IsAlphanumeric()
   userName: string;
 
   @ApiProperty({
@@ -64,5 +66,6 @@ export class SecureUser {
     public status: Status,
     public gamesWon: number,
     public gamesLost: number,
+    public achievements: string[],
   ) {}
 }

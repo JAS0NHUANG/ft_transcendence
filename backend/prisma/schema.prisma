@@ -34,7 +34,7 @@ model User {
   /// statistics
   gamesWon    	Int		@default(0)
   gamesLost   	Int		@default(0)
-  achievements  Achievement[] @unique
+  achievements  Achievement[]
 
   ///historics
   games Game[] @relation("player")
@@ -59,21 +59,21 @@ model Room {
   name      String     		@id @unique @default(uuid())
   status    RoomStatus
   password  String?
-  owner     String 				// this is user e-mail (because they can not change it)
   createdAt DateTime   		@default(now())
   messages  Message[]  		@relation("message")
   users     UserInRoom[] 	@relation("connecting Room to UserInRoom")
 }
 
 model UserInRoom {
-  id       String  @id @unique @default(uuid())
-  user     User    @relation("connecting User to UserInRoom", fields: [email], references: [email])
-  email    String
-  room     Room    @relation("connecting Room to UserInRoom", fields: [roomID], references: [name])
-  roomID   String
-  isMuted  Boolean @default(false)
-  isBanned Boolean @default(false)
-  role     Role    @default(USER)
+  id       	String  @id @unique @default(uuid())
+  user     	User    @relation("connecting User to UserInRoom", fields: [email], references: [email])
+  email    	String
+  room     	Room    @relation("connecting Room to UserInRoom", fields: [roomID], references: [name])
+  roomID   	String
+  isMuted  	Boolean @default(false)
+  isBanned 	Boolean @default(false)
+	isBlocked	Boolean @default(false)
+  role     	Role    @default(USER)
 }
 
 model Message {
@@ -82,7 +82,7 @@ model Message {
   sendtime DateTime @default(now())
   sender   String 	// this is the username
   room     Room     @relation("message", fields: [roomID], references: [name])
-  roomID   String   @unique
+  roomID   String
 }
 
 enum Role {

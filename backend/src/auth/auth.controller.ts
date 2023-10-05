@@ -21,7 +21,7 @@ import { JwtGuard } from './guard';
 import { GetUser } from '../decorator';
 import { User } from '@prisma/client';
 
-@ApiTags('User')
+@ApiTags('Authentification')
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService, private twoFA: TwoFA) {}

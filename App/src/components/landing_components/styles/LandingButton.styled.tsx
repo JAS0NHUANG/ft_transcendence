@@ -10,6 +10,7 @@ export type LandingProps = {
 const StyledLandingButton = styled.button<{}>`
   margin-top: 15px;
   margin-left: 15px;
+  margin-bottom: 15px;
   width: 90px;
   height: 90px;
   display: flex;

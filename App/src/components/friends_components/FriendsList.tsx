@@ -1,6 +1,6 @@
 import axios from 'axios';
 import React, { useState, useEffect } from 'react';
-import { Avatar, FriendsListWrapper, FriendContainer, UserInfos, ProfileButton } from './styles/FriendsList.styled';
+import { Avatar, FriendsListWrapper, FriendContainer, UserInfos, ProfileButton, CustomLink } from './styles/FriendsList.styled';
 
 interface Friend {
 	avatar: string;
@@ -40,12 +40,6 @@ const FriendsList: React.FC = () => {
 export default FriendsList;
 
 function Item(data: Friend[]) {
-
-	const handleClick = (username: string) => {
-		console.log("See profile: " + username);
-		// LATER: Add th request to go on other profile
-	  }
-
   return (
     <>
       {data.map((value, index) => (
@@ -53,8 +47,12 @@ function Item(data: Friend[]) {
           <div className="avatar">
             <Avatar src={`data:image/png;base64,${value.avatar}`} alt="user_avatar" />
           </div>
-          <UserInfos>{value.userName}<span>{value.status.toLowerCase()}</span></UserInfos>
-          <ProfileButton onClick={() => handleClick(value.userName)}>See profile</ProfileButton>
+          <UserInfos status={value.status.toLowerCase()}>
+            {value.userName}<span>{value.status.toLowerCase()}</span>
+          </UserInfos>
+          <CustomLink to={`/profile/${value.userName}`}>
+            <ProfileButton>See profile</ProfileButton>
+          </CustomLink>
         </FriendContainer>
       ))}
     </>

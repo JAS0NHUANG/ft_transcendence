@@ -14,34 +14,9 @@ export class FriendService {
   constructor(private readonly prisma: PrismaService) {}
 
   /*****************************************************************************/
-  /* send friend Request */
+  /* add friend  */
   /*****************************************************************************/
-  async getFriendList(user: User): Promise<SecureUser[]> {
-    const friendList : SecureUser[] = [];
-    const friendEmailList: string[] = user.friends;
-    for (let email of friendEmailList) {
-      const user = await this.getUserByEmail(email);
-      const secureUser: SecureUser = {
-        userName: user.userName,
-        avatar: user.avatar,
-        status: user.status,
-        gamesWon: user.gamesWon,
-        gamesLost: user.gamesLost,
-      }
-      await friendList.push(secureUser);
-    }
-
-    return friendList;
-  }
-
-  /*****************************************************************************/
-  /* send friend Request */
-  /*****************************************************************************/
-  async addFriend(
-    user: User,
-    payload: { userName: string },
-    res: Response,
-  ) {
+  async addFriend(user: User, payload: { userName: string }, res: Response) {
     // check user/payload data
     const checkData = await this.checkWithUsername(user, payload);
     if (checkData !== '') {
@@ -65,7 +40,6 @@ export class FriendService {
       throw new BadRequestException('You are already friends.');
     }
 
-
     // update/add sender to receiver's friends list
     try {
       const addFriendResult = await this.prisma.user.update({
@@ -81,7 +55,16 @@ export class FriendService {
       if (addFriendResult.friends.length === 1) {
         console.log('Added my first friend.');
         // Add FRIEND achievement.
-        // Should probably create an achievement module for this.
+        await this.prisma.user.update({
+          where: {
+            email: receiverEmail,
+          },
+          data: {
+            achievements: {
+              push: 'FRIEND',
+            },
+          },
+        });
       }
     } catch (error) {
       throw new ServiceUnavailableException('Server unavailable.');
@@ -101,8 +84,18 @@ export class FriendService {
       });
       if (addFriendResult.friends.length === 1) {
         console.log('Added my first friend.');
+        console.log('Added my first friend.');
         // Add FRIEND achievement.
-        // Should probably create an achievement module for this.
+        await this.prisma.user.update({
+          where: {
+            email: senderEmail,
+          },
+          data: {
+            achievements: {
+              push: 'FRIEND',
+            },
+          },
+        });
       }
     } catch (error) {
       throw new ServiceUnavailableException('Server unavailable.');
@@ -112,6 +105,78 @@ export class FriendService {
       status: 'OK',
       statusCode: 200,
       message: 'Friend request successufly accepted.',
+    };
+  }
+
+
+
+  /*****************************************************************************/
+  /* unfriend */
+  /*****************************************************************************/
+  async unfriend(user: User, payload: { userName: string }, res: Response) {
+    // check user/payload data
+    const checkData = await this.checkWithUsername(user, payload);
+    if (checkData !== '') {
+      throw new BadRequestException(checkData);
+    }
+    console.log("unfriend")
+    const sender: User = user;
+    const receiver: User = await this.getUserByUsername(payload.userName);
+    if (!receiver) {
+      throw new BadRequestException('Receiver not found.');
+    }
+
+    const senderEmail: string = sender.email;
+    const receiverEmail: string = receiver.email;
+
+    // check if they are friends
+    if (
+      !sender.friends.includes(receiverEmail) ||
+      !receiver.friends.includes(senderEmail)
+    ) {
+      throw new BadRequestException('You are not friends.');
+    }
+
+    // update/remove sender from receiver's friends list
+    try {
+      await this.prisma.user.update({
+        where: {
+          email: receiverEmail,
+        },
+        data: {
+          friends: {
+            set: receiver.friends.filter(
+              (senderEmailInArray) => senderEmailInArray !== sender.email,
+            ),
+          },
+        },
+      });
+    } catch (error) {
+      throw new ServiceUnavailableException('Server unavailable.');
+    }
+
+    // update/remove receiver from sender's friends list
+    try {
+      await this.prisma.user.update({
+        where: {
+          email: senderEmail,
+        },
+        data: {
+          friends: {
+            set: sender.friends.filter(
+              (receiverEmailInArray) => receiverEmailInArray !== receiver.email,
+            ),
+          },
+        },
+      });
+    } catch (error) {
+      throw new ServiceUnavailableException('Server unavailable.');
+    }
+
+    return {
+      status: 'OK',
+      statusCode: 200,
+      message: 'Goodbye my friend.',
     };
   }
 
@@ -413,75 +478,6 @@ export class FriendService {
       message: 'Friend request successufly declined.',
     };
   }
-  /*****************************************************************************/
-  /* unfriend */
-  /*****************************************************************************/
-  async unfriend(user: User, payload: { userEmail: string }, res: Response) {
-    // check user/payload data
-    const checkData = await this.checkSenderAndReceiver(user, payload);
-    if (checkData !== '') {
-      throw new BadRequestException(checkData);
-    }
-
-    const senderEmail: string = user.email;
-    const receiverEmail: string = payload.userEmail;
-
-    const sender: User = user;
-    const receiver: User = await this.getUserByEmail(receiverEmail);
-    if (!sender) {
-      throw new BadRequestException('Sender not found.');
-    }
-
-    // check if they are friends
-    if (
-      !sender.friends.includes(receiverEmail) ||
-      !receiver.friends.includes(senderEmail)
-    ) {
-      throw new BadRequestException('You are not friends.');
-    }
-
-    // update/add sender to receiver's friends list
-    try {
-      await this.prisma.user.update({
-        where: {
-          email: receiverEmail,
-        },
-        data: {
-          friends: {
-            set: receiver.friends.filter(
-              (senderEmailInArray) => senderEmailInArray !== sender.email,
-            ),
-          },
-        },
-      });
-    } catch (error) {
-      throw new ServiceUnavailableException('Server unavailable.');
-    }
-
-    // update/add receiver to sender's friends list
-    try {
-      await this.prisma.user.update({
-        where: {
-          email: senderEmail,
-        },
-        data: {
-          friends: {
-            set: sender.friends.filter(
-              (receiverEmailInArray) => receiverEmailInArray !== receiver.email,
-            ),
-          },
-        },
-      });
-    } catch (error) {
-      throw new ServiceUnavailableException('Server unavailable.');
-    }
-
-    return {
-      status: 'OK',
-      statusCode: 200,
-      message: 'Goodbye my friend.',
-    };
-  }
 
   /*****************************************************************************/
   // helper functions
@@ -581,4 +577,27 @@ export class FriendService {
     }
     return user;
   }
+
+  async getFriendList(user: User): Promise<SecureUser[]> {
+    const friendList: SecureUser[] = [];
+    const friendEmailList: string[] = user.friends;
+    for (let email of friendEmailList) {
+      const user = await this.getUserByEmail(email);
+      const secureUser: SecureUser = {
+        userName: user.userName,
+        avatar: user.avatar,
+        status: user.status,
+        gamesWon: user.gamesWon,
+        gamesLost: user.gamesLost,
+        achievements: user.achievements,
+      };
+      await friendList.push(secureUser);
+    }
+
+    return friendList;
+  }
+
+  /*****************************************************************************/
+  /* add freind achievement */
+  /*****************************************************************************/
 }

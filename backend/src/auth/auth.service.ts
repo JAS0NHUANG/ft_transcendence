@@ -79,6 +79,7 @@ export class AuthService {
           },
         });
         await this.fourtyTwoFirstLogin(user, res);
+        return;
       } catch (error) {
         if (error.code === 'P2002') {
           throw new ForbiddenException('Credentials taken');

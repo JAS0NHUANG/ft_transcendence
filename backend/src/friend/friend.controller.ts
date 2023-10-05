@@ -12,7 +12,12 @@ import {
   Res,
 } from '@nestjs/common';
 import { Response } from 'express';
-import { ApiBadRequestResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBadRequestResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
 import { User } from '@prisma/client';
 import { JwtGuard } from 'src/auth/guard';
 import { FriendService } from './friend.service';
@@ -30,10 +35,11 @@ export class FriendController {
   // Get user's friend list
   @Get('friendList')
   @ApiOkResponse({
-    description: 'returns an object { friendList: [] } with the user data objects inside the array',
+    description:
+      'returns an object { friendList: [] } with the user data objects inside the array',
   })
   async getFriendList(@GetUser() user: User) {
-    return { "friendList" : await this.friendService.getFriendList(user) };
+    return { friendList: await this.friendService.getFriendList(user) };
   }
 
   // Get the requests received from other users
@@ -53,17 +59,15 @@ export class FriendController {
   /*****************************************************************************/
   // add friend directly(Don't care if he/she wants~~~)
   @Post('addFriend')
-  @ApiOperation({ description: 'addFriend by providing and object like { userName: abc }' })
+  @ApiOperation({
+    description: 'addFriend by providing and object like { userName: abc }',
+  })
   async handleAddFriend(
     @GetUser() user: User,
     @Body() payload: { userName: string },
     @Res() res: Response,
   ) {
-    const result = await this.friendService.addFriend(
-      user,
-      payload,
-      res,
-    );
+    const result = await this.friendService.addFriend(user, payload, res);
     res
       .status(result.statusCode)
       .send({ status: result.status, message: result.message });
@@ -106,6 +110,21 @@ export class FriendController {
       .send({ status: result.status, message: result.message });
   }
 
+  // unfriend directly(Don't care if he/she wants~~~)
+  @Patch('unfriend')
+  @ApiOperation({
+    description: 'unfriend by providing and object like { userName: abc }',
+  })
+  async handleUnfriend(
+    @GetUser() user: User,
+    @Body() payload: { userName: string },
+    @Res() res: Response,
+  ) {
+    const result = await this.friendService.unfriend(user, payload, res);
+    res
+      .status(result.statusCode)
+      .send({ status: result.status, message: result.message });
+  }
   /*****************************************************************************/
   // DELETE
   /*****************************************************************************/
@@ -138,19 +157,6 @@ export class FriendController {
       payload,
       res,
     );
-    res
-      .status(result.statusCode)
-      .send({ status: result.status, message: result.message });
-  }
-
-  // Unfriend
-  @Delete('unfriend')
-  async handleUnfriend(
-    @GetUser() user: User,
-    @Body() payload: { userEmail: string },
-    @Res() res: Response,
-  ) {
-    const result = await this.friendService.unfriend(user, payload, res);
     res
       .status(result.statusCode)
       .send({ status: result.status, message: result.message });

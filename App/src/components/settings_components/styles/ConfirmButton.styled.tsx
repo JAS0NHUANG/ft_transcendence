@@ -8,7 +8,7 @@ export type ConfirmButtonProps = {
   type?: "button" | "submit" | "reset" | undefined;
 };
 
-const StyledConfirmButton = styled.button<{}>`
+export const StyledConfirmButton = styled.button<{}>`
   height: 23px;
   padding-left: 13px;
   padding-right: 14px;
