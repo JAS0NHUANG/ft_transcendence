@@ -1,6 +1,6 @@
 # ft_transcendence
 
-Transcend with a ping-pong game ^\_^
+Develop a full-stack Single Page Application with several features such as an online multi-player game, as a chat or a social page
 
 ## Tech Stack
 
